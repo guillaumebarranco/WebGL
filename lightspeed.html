@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js canvas - lines - sphere</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				background-color: #000000;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			.welcome {
+				position: absolute;
+				top: 100px;
+				left: 300px;
+				color: white;
+				display: none;
+				font-family: "Champagne & Limousines";
+				font-weight: 100;
+			}
+			.webarranco {
+				position: absolute;
+				top: 180px;
+				left: 300px;
+				color: white;
+				display: none;
+				font-family: "Champagne & Limousines";
+				font-weight: 100;
+			}
+			.button {
+				-webkit-transition: 0.6s;
+				font-family: "Champagne & Limousines";
+				background: white;
+				color: black;
+				padding: 10px;
+				cursor: pointer;
+				font-weight: bold;
+				position: absolute;
+				border: solid 3px white;
+				text-decoration: none;
+			}
+			.button.visit {
+				top: 280px;
+				left: 300px;
+				display: none;
+			}
+			.button.pass_intro {
+				top: 50px;
+				right: 100px;
+			}
+			.button:hover {
+				background: black;
+				color: white;
+			}
+
+		</style>
+	</head>
+	<body>
+
+		<h1 class="welcome">Welcome to the future</h1>
+		<h2 class="webarranco">Webarranco website</h2>
+		<a href="#" class="button visit">Visit the Website</a>
+		<a href="#" class="button pass_intro">Pass the introduction</a>
+
+		<script src="three.min.js"></script>
+		<script src="jquery-1.10.1.min.js"></script>
+
+		<script src="Projector.js"></script>
+		<script src="CanvasRenderer.js"></script>
+
+		<script>
+
+			var SCREEN_WIDTH = window.innerWidth,
+			SCREEN_HEIGHT = window.innerHeight,
+
+			mouseX = 0, mouseY = 0,
+
+			windowHalfX = window.innerWidth / 2,
+			windowHalfY = window.innerHeight / 2,
+
+			camera, scene, renderer;
+
+			window.counter = 0;
+
+			init();
+			animate();
+
+			function init() {
+
+				var container, separation = 100, amountX = 50, amountY = 50,
+				particles, particle;
+
+				container = document.createElement('div');
+				document.body.appendChild(container);
+
+				camera = new THREE.PerspectiveCamera( 75, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 10000 );
+				camera.position.z = 1000;
+
+				scene = new THREE.Scene();
+
+				renderer = new THREE.CanvasRenderer();
+				renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+				container.appendChild( renderer.domElement );
+
+				// particles
+
+				var PI2 = Math.PI * 2;
+				var material = new THREE.SpriteCanvasMaterial( {
+
+					color: 0xffffff,
+					program: function (context) {
+
+						context.beginPath();
+						context.arc(0, 0, 0.5, 0, PI2, true);
+						context.fill();
+					}
+
+				});
+
+				for ( var i = 0; i < 1000; i ++ ) {
+
+					particle = new THREE.Sprite(material);
+					particle.position.x = Math.random() * 2 - 1;
+					particle.position.y = Math.random() * 2 - 1;
+					particle.position.z = Math.random() * 2 - 1;
+					particle.position.normalize();
+					particle.position.multiplyScalar( Math.random() * 10 + 1000 );
+					particle.scale.multiplyScalar( 2 );
+					scene.add(particle);
+				}
+
+				// lines
+
+
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+				document.addEventListener( 'touchmove', onDocumentTouchMove, false );
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function onWindowResize() {
+
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			//
+
+			function onDocumentMouseMove(event) {
+
+				//mouseX = event.clientX - windowHalfX;
+				//mouseY = event.clientY - windowHalfY;
+			}
+
+			function onDocumentTouchStart( event ) {
+
+				if ( event.touches.length > 1 ) {
+
+					event.preventDefault();
+
+					mouseX = event.touches[ 0 ].pageX - windowHalfX;
+					mouseY = event.touches[ 0 ].pageY - windowHalfY;
+
+				}
+
+			}
+
+			function onDocumentTouchMove( event ) {
+
+				if ( event.touches.length == 1 ) {
+
+					event.preventDefault();
+
+					mouseX = event.touches[ 0 ].pageX - windowHalfX;
+					mouseY = event.touches[ 0 ].pageY - windowHalfY;
+
+				}
+
+			}
+
+			//
+
+			function animate() {
+
+				requestAnimationFrame(animate);
+				window.counter++;
+
+				if(window.counter > 100) {
+					for ( var p = 0; p < 1000; p ++ ) {
+						//scene.children[p].scale.y += 1;
+						scene.children[p].scale.z += 1;
+					}
+				}
+
+				render();
+
+			}
+
+			function render() {
+
+				//camera.position.x += ( mouseX - camera.position.x ) * .05;
+				//camera.position.x += 1;
+				//camera.position.x += 0.05;
+				if(camera.position.z > -3500) {
+					camera.position.z -= 10;
+				} else {
+					camera.position.x += 1;
+					$('.welcome').fadeIn();
+					setTimeout(function() {
+						$('.webarranco').fadeIn();
+					}, 1000);
+					setTimeout(function() {
+						$('.visit').fadeIn();
+						$('.pass_intro').fadeOut();
+					}, 2000);
+					
+				}
+				
+				camera.lookAt(scene.position);
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>
