@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js canvas - lines - sphere</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	
+	</head>
+	<body>
+	<div id="container"></div>
+		<script src="three.min.js"></script>
+		<script src="jquery-1.10.1.min.js"></script>
+
+		<script src="Projector.js"></script>
+		<script src="CanvasRenderer.js"></script>
+
+		<script>
+
+		var renderer, scene, camera;
+        var mesh = {};
+
+init();
+animate();
+
+function init(){
+    // on initialise le moteur de rendu
+    renderer = new THREE.WebGLRenderer({alpha: true});
+
+    // si WebGL ne fonctionne pas sur votre navigateur vous pouvez utiliser le moteur de rendu Canvas à la place
+    // renderer = new THREE.CanvasRenderer();
+    renderer.setSize( 1200, 600 );
+    renderer.setClearColor( 0x000000, 1 ); // the default
+    document.getElementById('container').appendChild(renderer.domElement);
+
+    // on initialise la scène
+    scene = new THREE.Scene();
+
+    // on initialise la camera que l’on place ensuite sur la scène
+    camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 10000 );
+    camera.position.set(0, 0, 5000);
+    scene.add(camera);
+
+    for (var i = 1; i < 8; i++) {
+        var geometry = new THREE.SphereGeometry( 300, 32, 32 );
+        var material = new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture('boule'+i+'.jpg', new THREE.SphericalReflectionMapping()), overdraw: true } );
+        mesh[i] = new THREE.Mesh( geometry, material );
+        mesh[i].position.x = 5000-(i*1000);
+    }
+    var left = 600;
+    var top = 700;
+    var div = 4;
+
+    mesh[1].position.x = - (left*2);
+
+    mesh[2].position.x = - left - (left/div);
+    mesh[2].position.y = + top;
+
+    mesh[3].position.x = 0 + (left/div);
+    mesh[3].position.y = + top;
+
+    mesh[4].position.x = left;
+
+    mesh[5].position.x = 0 + (left/div);
+    mesh[5].position.y = - top;
+
+    mesh[6].position.x = - left - (left/div);
+    mesh[6].position.y = - top;
+
+    mesh[7].position.x = - (left/2);
+    mesh[7].position.y = 0;
+
+    for (var s = 1; s < 8; s++) {
+        scene.add( mesh[s] );
+    }
+
+
+    $('canvas').hover(
+        function(e) {
+            var x = e.clientX;
+            var y = e.clientY;
+
+        },
+        function(e) {
+            var x = e.clientX;
+            var y = e.clientY;
+
+        }
+    );
+
+
+    // on ajoute une lumière blanche
+    var lumiere = new THREE.DirectionalLight( 0xffffff, 1.0 );
+    lumiere.position.set( 0, 0, 400 );
+    scene.add( lumiere );
+
+
+}
+var koko = 0;
+
+function animate(){
+    // on appel la fonction animate() récursivement à chaque frame
+    requestAnimationFrame( animate );
+    // on fait tourner le cube sur ses axes x et y
+    if(koko == 0) {
+        if(mesh[1].rotation.y > 4 && mesh[1].rotation.y < 4.5) {
+            var speed = 12;
+
+            mesh[1].position.x -= speed+ (speed/2);
+
+            mesh[2].position.x -= speed;
+            mesh[2].position.y += speed;
+
+            mesh[3].position.x += speed;
+            mesh[3].position.y += speed;
+
+            mesh[4].position.x += speed+ (speed/2);
+
+            mesh[5].position.x += speed;
+            mesh[5].position.y -= speed;
+
+            mesh[6].position.x -= speed;
+            mesh[6].position.y -= speed;
+
+            //mesh[7].position.x = - (left/2);
+            //mesh[7].position.y = 0;
+
+        }
+    }
+    
+    for (var a = 1; a < 8; a++) {
+        mesh[a].rotation.y += 0.01 * a;
+    }
+    
+    // on effectue le rendu de la scène
+    renderer.render( scene, camera );
+}
+
+		</script>
+	</body>
+</html>
